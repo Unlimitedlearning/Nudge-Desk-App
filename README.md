@@ -16,6 +16,8 @@ pip install -r requirements.txt
 ```
 
 ## 📁 目录结构
+
+```text
 Sports_Posture_Correction/
 ├── .venv/                  # 虚拟环境（不提交）
 ├── assets/                 # 静态资源（图片、视频、模型文件）
@@ -34,6 +36,7 @@ Sports_Posture_Correction/
 ├── tests/                  # 测试代码
 ├── requirements.txt        # Python 依赖清单
 └── README.md               # 项目说明（本文件）
+```
 
 ## 📝 文档与日志
 开发过程记录、每日工作留痕及架构设计，详见 docs/ 目录
