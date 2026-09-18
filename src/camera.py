@@ -4,6 +4,11 @@ class Camera:
     def __init__(self,camera_index=0):    #_init_是构造函数，创建Camera()时自动运行
         self.cap = cv2.VideoCapture(camera_index)
         #self.cap是一个属性，代表这台相机对象的底层控制器
+
+        # 设置摄像头分辨率，解决画面模糊问题
+        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+
         if not self.cap.isOpened():
             print("X 无法打开摄像头，请检查是否被其他程序占用")
 
