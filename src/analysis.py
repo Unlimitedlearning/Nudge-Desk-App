@@ -3,7 +3,7 @@ import math
 import time
 from collections import deque
 
-POSTURE_THRESHOLD = 165  # 体态判定阈值
+POSTURE_THRESHOLD = 170  # 体态判定阈值
 SMOOTH_WINDOW = 5        # 滑动窗口大小
 
 class PostureAnalyzer:
@@ -22,7 +22,10 @@ class PostureAnalyzer:
         # 记录连续不良体态的开始时间
         self.bad_posture_start_time = None
         # 设定报警延迟阈值（秒），超过这个时间才判定为真正的不良体态
-        self.alert_delay = 15
+        self.alert_delay = 15.0
+        self.bad_score = 0.0          # 当前的疲劳值
+        self.last_time = time.time()  # 记录上一次检测的时间
+        self.recovery_rate = 2.0      # 回复速率：抬头1秒，减少3点疲劳值
 
     def get_center_point(self, p1, p2):
         """计算两个点的中心点 (三维)"""
@@ -103,30 +106,32 @@ class PostureAnalyzer:
 
         # 5. 判定状态（加入时间窗口机制）
         current_time = time.time()
+        dt = current_time - self.last_time
+        self.last_time = current_time #疲劳度机制
+
+        # 防御性编程：防止电脑休眠或卡顿后 dt 突然变得极大
+        if dt > 2.0:
+            dt = 0.1
         
         if angle >= self.threshold:
-            # 姿态良好，重置开始时间
-            self.bad_posture_start_time = None
-            bad_duration = 0
-            final_status = "GOOD"
+            # 姿态良好，开始恢复疲劳值（最低为0）
+            self.bad_score = max(0.0, self.bad_score - dt * self.recovery_rate)
         else:
-            # 姿态不良，开始计时
-            if self.bad_posture_start_time is None:
-                self.bad_posture_start_time = current_time
+            # 姿态不良，疲劳度积累
+            self.bad_score += dt
             
-            bad_duration = current_time - self.bad_posture_start_time
-            
-            if bad_duration >= self.alert_delay:
-                # 持续时间超过阈值，触发报警
-                final_status = "ALERT"
-            else:
-                # 刚低头不久，处于警告缓冲期
-                final_status = "WARNING"
+            # 根据疲劳值判定最终状态
+        if self.bad_score >= self.alert_delay:
+            final_status = "ALERT"
+        elif self.bad_score > 0.5:  # 给个0.5的容差，避免瞬间清零
+            final_status = "WARNING"
+        else:
+            final_status = "GOOD"
 
         return {
             "angle": round(angle, 2),
             "status": final_status,
-            "bad_duration": round(bad_duration, 1)
+            "bad_score": round(self.bad_score, 1)
         }
 
 
@@ -138,11 +143,9 @@ if __name__ == "__main__":
 
     cam = Camera()
     estimator = PoseEstimator()
-    analyzer = PostureAnalyzer(POSTURE_THRESHOLD)
+    analyzer = PostureAnalyzer(threshold=165)
 
-    print("🚀 开始体态检测（三维平滑版）...")
-    print("💡 提示：请把摄像头放在你的侧前方约45度位置。")
-
+    print("🚀 开始动态积分体态检测...")
     while True:
         frame = cam.read()
         if frame is None: break
@@ -151,11 +154,9 @@ if __name__ == "__main__":
         result = analyzer.analyze(landmarks)
 
         if result:
-            color = (0, 255, 0) if result["status"] == "GOOD" else (0, 0, 255)
-            cv2.putText(processed_frame, f"Angle: {result['angle']}", (30, 50),
-                        cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
-            cv2.putText(processed_frame, f"Status: {result['status']}", (30, 100),
-                        cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
+            color = (0, 255, 0) if result["status"] == "GOOD" else ((0, 255, 255) if result["status"] == "WARNING" else (0, 0, 255))
+            cv2.putText(processed_frame, f"Angle: {result['angle']}", (30, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
+            cv2.putText(processed_frame, f"Status: {result['status']} | Score: {result['bad_score']}", (30, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
 
         cv2.imshow("Posture Analysis Test", processed_frame)
         if cv2.waitKey(1) & 0xFF == ord('q'): break

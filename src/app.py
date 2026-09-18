@@ -37,10 +37,9 @@ def main():
             cv2.putText(processed_frame, f"Status: {result['status']}", (30, 100),
                         cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
             
-            # 如果已经低头，显示低头了多少秒
-            if result["bad_duration"] > 0:
-                cv2.putText(processed_frame, f"Bad Time: {result['bad_duration']}s", (30, 150),
-                            cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
+            # 显示疲劳值
+            cv2.putText(processed_frame, f"Fatigue: {result['bad_score']}/15", (30, 150),
+                        cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
 
         # 显示画面（暂时用 OpenCV 显示）
         cv2.imshow("Posture Correction", processed_frame)
