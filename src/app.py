@@ -24,12 +24,23 @@ def main():
         result = analyzer.analyze(landmarks)
 
         if result:
-            # 表现层：根据判定结果，在画面上叠加文字（红绿提示）
-            color = (0, 255, 0) if result["status"] == "GOOD" else (0, 0, 255)
+            # 根据最终状态决定颜色
+            if result["status"] == "GOOD":
+                color = (0, 255, 0)     # 绿色
+            elif result["status"] == "WARNING":
+                color = (0, 255, 255)   # 黄色（警告缓冲期）
+            else:
+                color = (0, 0, 255)     # 红色（触发报警）
+
             cv2.putText(processed_frame, f"Angle: {result['angle']}", (30, 50),
                         cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
             cv2.putText(processed_frame, f"Status: {result['status']}", (30, 100),
                         cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
+            
+            # 如果已经低头，显示低头了多少秒
+            if result["bad_duration"] > 0:
+                cv2.putText(processed_frame, f"Bad Time: {result['bad_duration']}s", (30, 150),
+                            cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
 
         # 显示画面（暂时用 OpenCV 显示）
         cv2.imshow("Posture Correction", processed_frame)

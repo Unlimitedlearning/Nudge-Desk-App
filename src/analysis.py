@@ -1,5 +1,6 @@
 # src/analysis.py
 import math
+import time
 from collections import deque
 
 POSTURE_THRESHOLD = 165  # 体态判定阈值
@@ -17,6 +18,11 @@ class PostureAnalyzer:
         self.ear_history = deque(maxlen=smooth_window)
         self.shoulder_history = deque(maxlen=smooth_window)
         self.hip_history = deque(maxlen=smooth_window)
+
+        # 记录连续不良体态的开始时间
+        self.bad_posture_start_time = None
+        # 设定报警延迟阈值（秒），超过这个时间才判定为真正的不良体态
+        self.alert_delay = 15
 
     def get_center_point(self, p1, p2):
         """计算两个点的中心点 (三维)"""
@@ -95,12 +101,32 @@ class PostureAnalyzer:
         # 4. 计算三维夹角
         angle = self.calculate_3d_angle(avg_ear, avg_shoulder, avg_hip)
 
-        # 5. 判定状态
-        status = "GOOD" if angle >= self.threshold else "BAD"
+        # 5. 判定状态（加入时间窗口机制）
+        current_time = time.time()
+        
+        if angle >= self.threshold:
+            # 姿态良好，重置开始时间
+            self.bad_posture_start_time = None
+            bad_duration = 0
+            final_status = "GOOD"
+        else:
+            # 姿态不良，开始计时
+            if self.bad_posture_start_time is None:
+                self.bad_posture_start_time = current_time
+            
+            bad_duration = current_time - self.bad_posture_start_time
+            
+            if bad_duration >= self.alert_delay:
+                # 持续时间超过阈值，触发报警
+                final_status = "ALERT"
+            else:
+                # 刚低头不久，处于警告缓冲期
+                final_status = "WARNING"
 
         return {
             "angle": round(angle, 2),
-            "status": status
+            "status": final_status,
+            "bad_duration": round(bad_duration, 1)
         }
 
 
