@@ -120,18 +120,23 @@ class PostureAnalyzer:
             # 姿态不良，疲劳度积累
             self.bad_score += dt
             
-            # 根据疲劳值判定最终状态
+        # 根据疲劳值判定最终状态
         if self.bad_score >= self.alert_delay:
             final_status = "ALERT"
-        elif self.bad_score > 0.5:  # 给个0.5的容差，避免瞬间清零
+        elif self.bad_score > 5.0:  # 疲劳值在 5 秒到 15 秒之间，轻微警告（WARNING）
             final_status = "WARNING"
+        # 疲劳值小于 5 秒，视为正常（GOOD）
         else:
             final_status = "GOOD"
 
+        # 返回“综合报告”结构（为未来预留扩展）
         return {
-            "angle": round(angle, 2),
-            "status": final_status,
-            "bad_score": round(self.bad_score, 1)
+            "posture": {
+                "angle": round(angle, 2),
+                "status": final_status,
+                "neck_fatigue": round(self.bad_score, 1)
+            }
+            # 💡 未来这里可以加 "distance": {...}, "shoulder": {...}
         }
 
 
@@ -154,11 +159,9 @@ if __name__ == "__main__":
         result = analyzer.analyze(landmarks)
 
         if result:
-            color = (0, 255, 0) if result["status"] == "GOOD" else ((0, 255, 255) if result["status"] == "WARNING" else (0, 0, 255))
-            cv2.putText(processed_frame, f"Angle: {result['angle']}", (30, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
-            cv2.putText(processed_frame, f"Status: {result['status']} | Score: {result['bad_score']}", (30, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
-
-        cv2.imshow("Posture Analysis Test", processed_frame)
-        if cv2.waitKey(1) & 0xFF == ord('q'): break
+            posture_data = result["posture"]
+            color = (0, 255, 0) if posture_data["status"] == "GOOD" else ((0, 255, 255) if posture_data["status"] == "WARNING" else (0, 0, 255))
+            cv2.putText(processed_frame, f"Angle: {posture_data['angle']}", (30, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
+            cv2.putText(processed_frame, f"Status: {posture_data['status']} | Neck Fatigue: {posture_data['neck_fatigue']}", (30, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
 
     cam.release()
