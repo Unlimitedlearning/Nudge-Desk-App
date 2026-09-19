@@ -5,7 +5,7 @@ class DesktopWidget:
     def __init__(self):
         # 1. 创建主窗口
         self.root = tk.Tk()
-        self.root.title("体态守望者")
+        self.root.title("Nudge-Desk-App (轻推)")
         
         # 2. 窗口大小和位置
         window_width = 140
