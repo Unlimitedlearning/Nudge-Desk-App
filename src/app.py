@@ -17,7 +17,7 @@ def process_frame():
     # 1. 读取摄像头
     frame = cam.read()
     
-    # 如果读取到了画面，就处理
+    # 如果读取到了画面，就进行处理
     if frame is not None:
         # 2. 视觉层：识别骨骼
         processed_frame, landmarks = estimator.process(frame)
