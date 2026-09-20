@@ -87,8 +87,14 @@ class DesktopWidget:
     def show_menu(self, event):
         self.menu.post(event.x_root, event.y_root)
 
-    def update_status(self, status="未检测到人", angle=0, neck_fatigue=0):
+    def update_status(self, status="未检测到人", angle=0, neck_fatigue=0,is_tilted=False,is_too_close=False):
         """供外部调用：更新悬浮窗状态"""
+
+        if is_too_close:
+            status = "TOO_CLOSE"
+        elif is_tilted:
+            status = "TILTED"
+
         # 声音提醒：只有当从未达到 ALERT 突然变成 ALERT 时，才响一声，避免每30ms就响一次
         if status == "ALERT" and self.last_status != "ALERT":
             try:
@@ -113,6 +119,12 @@ class DesktopWidget:
                 text=f"严重疲劳\n{angle}°\n颈疲劳: {neck_fatigue}", 
                 bg="#e74c3c", fg="white"
             )
+
+        elif status == "TOO_CLOSE":
+            self.status_label.config(text="脸太近了！\n请后退", bg="#e67e22", fg="white")
+        elif status == "TILTED":
+            self.status_label.config(text="高低肩！\n请坐正", bg="#9b59b6", fg="white")
+
         else:
             self.status_label.config(text=status, bg="#555555", fg="white")
 

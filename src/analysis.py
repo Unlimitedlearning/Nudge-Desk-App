@@ -31,7 +31,7 @@ class PostureAnalyzer:
         self.alert_delay = 15.0
         self.bad_score = 0.0          # 当前的疲劳值
         self.last_time = time.time()  # 记录上一次检测的时间
-        self.recovery_rate = 2.0      # 回复速率：抬头1秒，减少2点疲劳值
+        self.recovery_rate = 3.0      # 回复速率：抬头1秒，减少3点疲劳值
 
     def get_center_point(self, p1, p2):
         """计算两个点的中心点 (三维)"""
@@ -115,6 +115,15 @@ class PostureAnalyzer:
         dt = current_time - self.last_time
         self.last_time = current_time #疲劳度机制
 
+        # 高低肩检测：计算肩膀的 Y 轴差值
+        shoulder_diff_y = abs(shoulder_l.y - shoulder_r.y)
+        # 设定阈值，超过则判定为高低肩
+        is_tilted = shoulder_diff_y > 0.04
+
+        # 近视检测：计算肩膀的 X 轴距离（与身体和屏幕的距离相关，近大远小）
+        shoulder_diff_x = abs(shoulder_l.x - shoulder_r.x)
+        is_too_close = shoulder_diff_x > 0.35    # 阈值待定 
+
         # 防御性编程：防止电脑休眠或卡顿后 dt 突然变得极大
         if dt > 2.0:
             dt = 0.1
@@ -140,7 +149,9 @@ class PostureAnalyzer:
             "posture": {
                 "angle": round(angle, 2),
                 "status": final_status,
-                "neck_fatigue": round(self.bad_score, 1)
+                "neck_fatigue": round(self.bad_score, 1),
+                "is_tilted": is_tilted,
+                "is_too_close": is_too_close
             }
             # 💡 未来这里可以加 "distance": {...}, "shoulder": {...}
         }

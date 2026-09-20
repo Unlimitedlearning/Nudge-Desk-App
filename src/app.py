@@ -36,7 +36,9 @@ def process_frame():
             widget.update_status(
                 status=posture_data["status"],
                 angle=posture_data["angle"],
-                neck_fatigue=posture_data["neck_fatigue"]
+                neck_fatigue=posture_data["neck_fatigue"],
+                is_tilted=posture_data["is_tilted"],
+                is_too_close=posture_data["is_too_close"]
             )
 
     # 🌟 核心：在 UI 主线程里循环调用自己，而不是用 while True
