@@ -6,6 +6,8 @@
 """
 
 import tkinter as tk
+import os
+import pygame
 
 class DesktopWidget:
     def __init__(self):
@@ -48,6 +50,27 @@ class DesktopWidget:
         self.menu.add_command(label="退出", command=self.root.destroy)
         self.status_label.bind("<Button-3>", self.show_menu)  # 绑定鼠标右键点击事件
 
+        # 初始化音频
+        try:
+            # 1. 获取当前文件(src/ui.py)所在的绝对路径
+            current_dir = os.path.dirname(os.path.abspath(__file__))
+            # 2. 获取项目根目录(即 src 的上一级)
+            project_root = os.path.dirname(current_dir)
+            # 3. 拼接出音频的绝对路径
+            sound_path = os.path.join(project_root, "assets", "audio", "tone.wav")
+            
+            print(f"🔊 正在加载音频: {sound_path}")
+            pygame.mixer.init()
+            # 用绝对路径加载
+            self.alert_sound = pygame.mixer.Sound(sound_path)
+            self.alert_sound.set_volume(0.3)
+            print("✅ 音频加载成功！")
+        except Exception as e:
+            print(f"❌ 音频初始化失败，具体报错: {e}")
+            self.alert_sound = None
+            
+        self.last_status = None  # 用于记录上一次的状态，防止重复响铃
+
     def start_move(self, event):
         # 鼠标左键按下时：记录鼠标当前在窗口内的相对位置
         self._drag_data["x"] = event.x
@@ -66,6 +89,15 @@ class DesktopWidget:
 
     def update_status(self, status="未检测到人", angle=0, neck_fatigue=0):
         """供外部调用：更新悬浮窗状态"""
+        # 声音提醒：只有当从未达到 ALERT 突然变成 ALERT 时，才响一声，避免每30ms就响一次
+        if status == "ALERT" and self.last_status != "ALERT":
+            try:
+                if self.alert_sound:
+                    self.alert_sound.play()  # 播放自定义音效
+            except Exception:
+                pass  # 防止在非 Windows 系统上报错
+        self.last_status = status  # 更新记录
+
         if status == "GOOD":
             self.status_label.config(
                 text=f"体态端正\n{angle}°\n颈疲劳: {neck_fatigue}", 
