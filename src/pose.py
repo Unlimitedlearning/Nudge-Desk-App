@@ -1,4 +1,10 @@
 # src/pose.py
+"""
+视觉层：MediaPipe 姿态识别模块。
+职责：接收视频帧，提取骨骼关键点（landmarks），并绘制火柴人。
+依赖：mediapipe, opencv
+"""
+
 import cv2
 import mediapipe as mp
 

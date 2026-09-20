@@ -1,4 +1,10 @@
 # src/app.py
+"""
+控制层：程序主入口与调度中心。
+职责：串联输入层、视觉层、分析层与表现层，通过事件驱动循环（root.after）实现流畅调用。
+依赖：camera, pose, analysis, ui
+"""
+
 from camera import Camera
 from pose import PoseEstimator
 from analysis import PostureAnalyzer, POSTURE_THRESHOLD

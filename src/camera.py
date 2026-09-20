@@ -1,4 +1,10 @@
 # src/camera.py
+"""
+输入层：摄像头硬件调用模块。
+职责：打开/关闭摄像头，获取并返回原始视频帧。
+依赖：OpenCV (cv2)
+"""
+
 import cv2
 class Camera:
     def __init__(self,camera_index=0):    #_init_是构造函数，创建Camera()时自动运行

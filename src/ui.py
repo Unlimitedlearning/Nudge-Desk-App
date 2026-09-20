@@ -1,4 +1,10 @@
 # src/ui.py
+"""
+表现层：桌面悬浮窗 UI 模块。
+职责：创建无边框/置顶/半透明的窗口，接收体态状态并更新颜色与文字显示。
+依赖：tkinter
+"""
+
 import tkinter as tk
 
 class DesktopWidget:

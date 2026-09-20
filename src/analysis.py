@@ -1,4 +1,10 @@
 # src/analysis.py
+"""
+分析层：体态逻辑计算模块。
+职责：接收骨骼数据，计算三维夹角，维护“疲劳值”积分系统，输出体态状态。
+依赖：math, time, collections
+"""
+
 import math
 import time
 from collections import deque
@@ -25,7 +31,7 @@ class PostureAnalyzer:
         self.alert_delay = 15.0
         self.bad_score = 0.0          # 当前的疲劳值
         self.last_time = time.time()  # 记录上一次检测的时间
-        self.recovery_rate = 2.0      # 回复速率：抬头1秒，减少3点疲劳值
+        self.recovery_rate = 2.0      # 回复速率：抬头1秒，减少2点疲劳值
 
     def get_center_point(self, p1, p2):
         """计算两个点的中心点 (三维)"""
