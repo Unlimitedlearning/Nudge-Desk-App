@@ -5,6 +5,10 @@
 依赖：camera, pose, analysis, ui
 """
 
+import time
+import os
+import csv
+
 from camera import Camera
 from pose import PoseEstimator
 from analysis import PostureAnalyzer, POSTURE_THRESHOLD
@@ -15,10 +19,11 @@ cam = None
 estimator = None
 analyzer = None
 widget = None
+last_log_time = 0
 
 def process_frame():
     """每 30 毫秒调用一次，处理一帧摄像头画面"""
-    global cam, estimator, analyzer, widget
+    global cam, estimator, analyzer, widget, last_log_time
 
     # 1. 读取摄像头
     frame = cam.read()
@@ -32,6 +37,21 @@ def process_frame():
 
         if result:
             posture_data = result["posture"]
+
+            if time.time() - last_log_time > 5: # 每5秒记录一次
+                    os.makedirs("data/raw", exist_ok=True)  # 存进你规划的data目录里
+                    with open("data/raw/local_test_log.csv", "a", newline="", encoding="utf-8") as f:
+                        writer = csv.writer(f)
+                        writer.writerow([
+                            time.strftime("%Y-%m-%d %H:%M:%S"), 
+                            posture_data["status"], 
+                            posture_data["angle"], 
+                            posture_data["neck_fatigue"],
+                            posture_data["is_tilted"],
+                            posture_data["is_too_close"]
+                        ])
+                    last_log_time = time.time()
+
             # 4. 把计算结果直接推送给 UI 悬浮窗
             widget.update_status(
                 status=posture_data["status"],
