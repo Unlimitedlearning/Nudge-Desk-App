@@ -7,12 +7,22 @@
 
 | 竞品名称 | 类型 | 目标场景 | 技术路线 | 核心局限 |
 |:---|:---|:---|:---|:---|
-| 新法教育·儿童体姿评估系统 | 商业B端产品 | 校园健康管理 | 专用硬件+AI评估 | 需学校采购硬件，非个人可用 |
-| PosePilot | 开源项目 | 瑜伽练习 | BiLSTM+注意力机制 | 需大量标注数据训练，模型重，面向运动场景 |
-| Smart Yoga Posture Correction | 学术研究 | 瑜伽动作纠正 | ResMLP分类模型 | 同样面向运动场景，依赖深度学习训练 |
-| posture-assessment | 个人开发者工具 | 静态体态评估 | MediaPipe+Claude AI | 仅支持拍照评估，非实时视频流 |
-| AI运动姿态识别与纠正系统 | 国家级大创项目 | 校园体育教学 | MediaPipe+标准动作库 | 面向广播体操等标准化运动，非日常静态体态 |
-| PostureGuard | 开源/个人项目 | 办公/学习体态纠正 | MediaPipe + PySide6 | 偏向主窗口交互与系统弹窗，打断心流 |
+| 新法教育·儿童体姿评估系统[1] | 商业B端产品 | 校园健康管理 | 专用硬件+AI评估 | 需学校采购硬件，非个人可用 |
+| PosePilot[2] | 开源项目 | 瑜伽练习 | BiLSTM+注意力机制 | 需大量标注数据训练，模型重，面向运动场景 |
+| Smart Yoga Posture Correction[3] | 学术研究 | 瑜伽动作纠正 | ResMLP分类模型 | 同样面向运动场景，依赖深度学习训练 |
+| posture-assessment[4] | 个人开发者工具 | 静态体态评估 | MediaPipe+Claude AI | 仅支持拍照评估，非实时视频流 |
+| AI运动姿态识别与纠正系统[5] | 国家级大创项目 | 校园体育教学 | MediaPipe+标准动作库 | 面向广播体操等标准化运动，非日常静态体态 |
+| PostureGuard[6] | 开源/个人项目 | 办公/学习体态纠正 | MediaPipe + PySide6 | 偏向主窗口交互与系统弹窗，打断心流 |
+
+**参考链接与资料来源：**
+[1] 新法教育·儿童体姿评估系统 [B站链接](https://www.bilibili.com/opus/1064414160092135430)
+[2] PosePilot [GitHub链接](https://github.com/gadhvirushiraj/PosePilot/blob/master/readme.md)
+[3] Smart Yoga Posture Correction [HuggingFace](https://huggingface.co/Arko007/yoga-posture-models)
+[4] posture-assessment [GitHub链接]([posture-assessment](https://github.com/alcoholWipe/posture-assessment))
+[5] 国家级大创项目“跃动智矫” [国家级大学生创新训练计划平台](http://gjcxcy.bjtu.edu.cn/NewLXItemListForStudentDetail.aspx?ItemNo=1592378&IsLXItem=1)
+[6] PostureGuard [GitHub链接](https://github.com/XmOfficial/PostureGuard)
+(注：以上链接均于2026年9月验证可用，所有竞品分析均基于公开资料整理。)
+
 
 ## 三、 竞品共性缺陷
 
