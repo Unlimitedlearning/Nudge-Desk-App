@@ -87,4 +87,13 @@ def main():
     widget.start()
 
 if __name__ == "__main__":
-    main()
+    import traceback
+    try:
+        main()
+    except Exception as e:
+        # 把真实报错写到本地文件，方便排查
+        with open("crash_log.txt", "w", encoding="utf-8") as f:
+            f.write(traceback.format_exc())
+        print("❌ 程序崩溃，已将错误写入 crash_log.txt")
+        import time
+        time.sleep(10)  # 留10秒让你看控制台

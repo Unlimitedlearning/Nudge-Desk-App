@@ -2,3 +2,10 @@
 __pycache__/
 *.pyc
 data/
+# 打包产物（Nuitka / PyInstaller）
+app.dist/
+build/
+dist/
+*.exe
+# 临时错误日志
+crash_log.txt

@@ -7,7 +7,11 @@
 
 import tkinter as tk
 import os
+import sys
 import pygame
+# 把 utils 所在目录加入路径，防止打包后找不到
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+from utils import resource_path
 
 class DesktopWidget:
     def __init__(self):
@@ -52,16 +56,11 @@ class DesktopWidget:
 
         # 初始化音频
         try:
-            # 1. 获取当前文件(src/ui.py)所在的绝对路径
-            current_dir = os.path.dirname(os.path.abspath(__file__))
-            # 2. 获取项目根目录(即 src 的上一级)
-            project_root = os.path.dirname(current_dir)
-            # 3. 拼接出音频的绝对路径
-            sound_path = os.path.join(project_root, "assets", "audio", "tone.wav")
+            # ⚡ 使用 resource_path 获取打包后的正确路径
+            sound_path = resource_path("assets/audio/tone.wav")
             
             print(f"🔊 正在加载音频: {sound_path}")
             pygame.mixer.init()
-            # 用绝对路径加载
             self.alert_sound = pygame.mixer.Sound(sound_path)
             self.alert_sound.set_volume(0.3)
             print("✅ 音频加载成功！")
