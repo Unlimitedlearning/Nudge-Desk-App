@@ -62,6 +62,7 @@ class DesktopWidget:
             print(f"🔊 正在加载音频: {sound_path}")
             pygame.mixer.init()
             self.alert_sound = pygame.mixer.Sound(sound_path)
+            self.alert_channel = pygame.mixer.Channel(0)  # 专门用0号通道播提示音
             self.alert_sound.set_volume(0.3)
             print("✅ 音频加载成功！")
         except Exception as e:
@@ -89,7 +90,10 @@ class DesktopWidget:
     def update_status(self, status="未检测到人", angle=0, neck_fatigue=0,is_tilted=False,is_too_close=False):
         """供外部调用：更新悬浮窗状态"""
 
-        if is_too_close:
+        # ⚡ 状态优先级：严重疲劳 > 防近视 > 高低肩 > 轻度疲劳 > 正常
+        if status == "ALERT":
+            pass  # 保持原有 ALERT 显示，不做覆盖
+        elif is_too_close:
             status = "TOO_CLOSE"
         elif is_tilted:
             status = "TILTED"
@@ -98,7 +102,8 @@ class DesktopWidget:
         if status == "ALERT" and self.last_status != "ALERT":
             try:
                 if self.alert_sound:
-                    self.alert_sound.play()  # 播放自定义音效
+                    self.alert_channel.stop()          # 先掐掉上一个音
+                    self.alert_channel.play(self.alert_sound)  # 再播新的
             except Exception:
                 pass  # 防止在非 Windows 系统上报错
         self.last_status = status  # 更新记录
