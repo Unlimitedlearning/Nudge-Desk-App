@@ -51,8 +51,13 @@ class DesktopWidget:
 
         # 6. 鼠标右键菜单（用来关闭）
         self.menu = tk.Menu(self.root, tearoff=0)
+        self.menu.add_command(label="重新校准", command=self.trigger_recalibration)
+        self.menu.add_separator()
         self.menu.add_command(label="退出", command=self.root.destroy)
         self.status_label.bind("<Button-3>", self.show_menu)  # 绑定鼠标右键点击事件
+
+        # 新增一个回调属性，稍后由 app.py 注入
+        self.on_recalibrate = None
 
         # 初始化音频
         try:
@@ -70,6 +75,10 @@ class DesktopWidget:
             self.alert_sound = None
             
         self.last_status = None  # 用于记录上一次的状态，防止重复响铃
+
+    def trigger_recalibration(self):
+        if self.on_recalibrate:
+            self.on_recalibrate()
 
     def start_move(self, event):
         # 鼠标左键按下时：记录鼠标当前在窗口内的相对位置
@@ -90,6 +99,13 @@ class DesktopWidget:
     def update_status(self, status="未检测到人", angle=0, neck_fatigue=0,is_tilted=False,is_too_close=False):
         """供外部调用：更新悬浮窗状态"""
 
+        if status == "CALIBRATING":
+            self.status_label.config(
+                text=f"⚙️ 正在校准\n请端正坐姿\n倒计时: {angle}s", 
+                bg="#3498db", fg="white"
+            )
+            return  # 校准中，直接返回，不执行其他状态逻辑
+        
         # ⚡ 状态优先级：严重疲劳 > 防近视 > 高低肩 > 轻度疲劳 > 正常
         if status == "ALERT":
             pass  # 保持原有 ALERT 显示，不做覆盖

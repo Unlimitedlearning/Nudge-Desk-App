@@ -21,7 +21,7 @@ class PostureAnalyzer:
         self.smooth_window = smooth_window
 
         # 存储历史的平滑点队列 (耳, 肩, 髋)
-        self.ear_history = deque(maxlen=smooth_window)
+        self.nose_history = deque(maxlen=smooth_window)
         self.shoulder_history = deque(maxlen=smooth_window)
         self.hip_history = deque(maxlen=smooth_window)
 
@@ -77,8 +77,7 @@ class PostureAnalyzer:
             # 耳：7(左), 8(右)
             # 肩：11(左), 12(右)
             # 髋：23(左), 24(右)
-            ear_l = landmarks.landmark[7]
-            ear_r = landmarks.landmark[8]
+            nose = landmarks.landmark[0]        # 鼻尖（用于低头检测，最敏感）
             shoulder_l = landmarks.landmark[11]
             shoulder_r = landmarks.landmark[12]
             hip_l = landmarks.landmark[23]
@@ -87,19 +86,19 @@ class PostureAnalyzer:
             return None
 
         # 1. 计算中轴点
-        center_ear = self.get_center_point(ear_l, ear_r)
+        center_nose = (nose.x, nose.y, nose.z)
         center_shoulder = self.get_center_point(shoulder_l, shoulder_r)
         center_hip = self.get_center_point(hip_l, hip_r)
 
         # 2. 放入历史队列进行平滑
-        self.ear_history.append(center_ear)
+        self.nose_history.append(center_nose)
         self.shoulder_history.append(center_shoulder)
         self.hip_history.append(center_hip)
 
         # 3. 计算平滑后的平均值
-        avg_ear = (sum(p[0] for p in self.ear_history)/len(self.ear_history),
-                   sum(p[1] for p in self.ear_history)/len(self.ear_history),
-                   sum(p[2] for p in self.ear_history)/len(self.ear_history))
+        avg_nose = (sum(p[0] for p in self.nose_history)/len(self.nose_history),
+                   sum(p[1] for p in self.nose_history)/len(self.nose_history),
+                   sum(p[2] for p in self.nose_history)/len(self.nose_history))
         avg_shoulder = (sum(p[0] for p in self.shoulder_history)/len(self.shoulder_history),
                         sum(p[1] for p in self.shoulder_history)/len(self.shoulder_history),
                         sum(p[2] for p in self.shoulder_history)/len(self.shoulder_history))
@@ -108,7 +107,7 @@ class PostureAnalyzer:
                    sum(p[2] for p in self.hip_history)/len(self.hip_history))
 
         # 4. 计算三维夹角
-        angle = self.calculate_3d_angle(avg_ear, avg_shoulder, avg_hip)
+        angle = self.calculate_3d_angle(avg_nose, avg_shoulder, avg_hip)
 
         # 5. 判定状态（加入时间窗口机制）
         current_time = time.time()
